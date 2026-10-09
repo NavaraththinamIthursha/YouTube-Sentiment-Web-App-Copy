@@ -1,0 +1,2119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>YouTube Sentiment Analysis</title>
+
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+
+        body {
+
+            margin: 0;
+
+            font-family: Arial, sans-serif;
+
+            background: #f4f6f8;
+
+            color: #333;
+
+        }
+
+
+        .container {
+
+            width: 90%;
+
+            max-width: 1200px;
+
+            margin: auto;
+
+        }
+
+
+        header {
+
+            background: #1f2937;
+
+            color: white;
+
+            padding: 28px;
+
+            text-align: center;
+
+            margin-bottom: 30px;
+
+        }
+
+
+        header h1 {
+
+            margin: 0;
+
+            font-size: 30px;
+
+        }
+
+
+        header p {
+
+            margin-top: 8px;
+
+            color: #d1d5db;
+
+        }
+
+
+        .card {
+
+            background: white;
+
+            padding: 25px;
+
+            border-radius: 12px;
+
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+
+            margin-bottom: 30px;
+
+        }
+
+
+        .card h2 {
+
+            margin-top: 0;
+
+        }
+
+
+        textarea,
+        input[type="url"],
+        input[type="number"] {
+
+            width: 100%;
+
+            padding: 14px;
+
+            border: 1px solid #ccc;
+
+            border-radius: 8px;
+
+            font-size: 16px;
+
+        }
+
+
+        textarea {
+
+            height: 130px;
+
+            resize: vertical;
+
+        }
+
+
+        textarea:focus,
+        input:focus {
+
+            outline: none;
+
+            border-color: #2563eb;
+
+        }
+
+
+        .batch-textarea {
+
+            height: 180px;
+
+        }
+
+
+        .button-container {
+
+            margin-top: 15px;
+
+            display: flex;
+
+            gap: 10px;
+
+            flex-wrap: wrap;
+
+        }
+
+
+        button {
+
+            border: none;
+
+            border-radius: 7px;
+
+            cursor: pointer;
+
+            font-size: 15px;
+
+            font-weight: bold;
+
+        }
+
+
+        .blue-button {
+
+            background: #2563eb;
+
+            color: white;
+
+            padding: 12px 25px;
+
+        }
+
+
+        .blue-button:hover {
+
+            background: #1d4ed8;
+
+        }
+
+
+        .purple-button {
+
+            background: #7c3aed;
+
+            color: white;
+
+            padding: 12px 25px;
+
+        }
+
+
+        .purple-button:hover {
+
+            background: #6d28d9;
+
+        }
+
+
+        .red-button {
+
+            background: #dc2626;
+
+            color: white;
+
+            padding: 11px 18px;
+
+        }
+
+
+        .green-button {
+
+            background: #16a34a;
+
+            color: white;
+
+            padding: 11px 18px;
+
+            text-decoration: none;
+
+            border-radius: 7px;
+
+            font-weight: bold;
+
+        }
+
+
+        .gray-button {
+
+            background: #6b7280;
+
+            color: white;
+
+            padding: 12px 25px;
+
+        }
+
+
+        .help-text {
+
+            color: #666;
+
+            font-size: 14px;
+
+        }
+
+
+        /* ====================================================
+           YOUTUBE
+        ==================================================== */
+
+        .youtube-card {
+
+            border-top: 5px solid #ff0000;
+
+        }
+
+
+        .youtube-input-row {
+
+            display: grid;
+
+            grid-template-columns: 1fr 180px;
+
+            gap: 15px;
+
+            margin-top: 15px;
+
+        }
+
+
+        .youtube-button {
+
+            background: #ff0000;
+
+            color: white;
+
+            padding: 13px 25px;
+
+            margin-top: 15px;
+
+        }
+
+
+        .youtube-button:hover {
+
+            background: #cc0000;
+
+        }
+
+
+        .error-message {
+
+            background: #fee2e2;
+
+            color: #991b1b;
+
+            padding: 15px;
+
+            border-radius: 8px;
+
+            margin-bottom: 30px;
+
+            border-left: 5px solid #dc2626;
+
+        }
+
+
+        /* ====================================================
+           VIDEO RESULT
+        ==================================================== */
+
+        .video-info {
+
+            background: #f3f4f6;
+
+            padding: 20px;
+
+            border-radius: 10px;
+
+            margin-bottom: 25px;
+
+        }
+
+
+        .video-info h3 {
+
+            margin-top: 0;
+
+        }
+
+
+        .video-stat-grid {
+
+            display: grid;
+
+            grid-template-columns: repeat(4, 1fr);
+
+            gap: 15px;
+
+            margin-bottom: 25px;
+
+        }
+
+
+        .video-stat {
+
+            padding: 20px;
+
+            border-radius: 10px;
+
+            text-align: center;
+
+            background: white;
+
+            box-shadow: 0 2px 7px rgba(0,0,0,0.08);
+
+        }
+
+
+        .video-stat-number {
+
+            font-size: 26px;
+
+            font-weight: bold;
+
+            margin-top: 8px;
+
+        }
+
+
+        .video-positive {
+
+            border-top: 5px solid #16a34a;
+
+        }
+
+
+        .video-neutral {
+
+            border-top: 5px solid #f59e0b;
+
+        }
+
+
+        .video-negative {
+
+            border-top: 5px solid #dc2626;
+
+        }
+
+
+        .video-total {
+
+            border-top: 5px solid #2563eb;
+
+        }
+
+
+        /* ====================================================
+           TABLES
+        ==================================================== */
+
+        .table-container {
+
+            overflow-x: auto;
+
+        }
+
+
+        table {
+
+            width: 100%;
+
+            border-collapse: collapse;
+
+            min-width: 700px;
+
+        }
+
+
+        th {
+
+            background: #1f2937;
+
+            color: white;
+
+            padding: 12px;
+
+            text-align: left;
+
+        }
+
+
+        td {
+
+            padding: 12px;
+
+            border-bottom: 1px solid #e5e7eb;
+
+        }
+
+
+        tr:hover {
+
+            background: #f9fafb;
+
+        }
+
+
+        .video-table th {
+
+            background: #ff0000;
+
+        }
+
+
+        .batch-table th {
+
+            background: #7c3aed;
+
+        }
+
+
+        .positive-text {
+
+            color: #16a34a;
+
+            font-weight: bold;
+
+        }
+
+
+        .neutral-text {
+
+            color: #d97706;
+
+            font-weight: bold;
+
+        }
+
+
+        .negative-text {
+
+            color: #dc2626;
+
+            font-weight: bold;
+
+        }
+
+
+        /* ====================================================
+           DASHBOARD
+        ==================================================== */
+
+        .stats {
+
+            display: grid;
+
+            grid-template-columns: repeat(4, 1fr);
+
+            gap: 15px;
+
+        }
+
+
+        .stat-card {
+
+            background: white;
+
+            padding: 20px;
+
+            border-radius: 10px;
+
+            text-align: center;
+
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+
+        }
+
+
+        .stat-card h3 {
+
+            margin: 0 0 10px 0;
+
+            font-size: 16px;
+
+        }
+
+
+        .stat-number {
+
+            font-size: 28px;
+
+            font-weight: bold;
+
+        }
+
+
+        .total {
+
+            border-top: 5px solid #2563eb;
+
+        }
+
+
+        .positive {
+
+            border-top: 5px solid #16a34a;
+
+        }
+
+
+        .neutral {
+
+            border-top: 5px solid #f59e0b;
+
+        }
+
+
+        .negative {
+
+            border-top: 5px solid #dc2626;
+
+        }
+
+
+        /* ====================================================
+           PROGRESS
+        ==================================================== */
+
+        .distribution-row {
+
+            margin-bottom: 20px;
+
+        }
+
+
+        .distribution-label {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            margin-bottom: 7px;
+
+            font-weight: bold;
+
+        }
+
+
+        .progress {
+
+            width: 100%;
+
+            height: 20px;
+
+            background: #e5e7eb;
+
+            border-radius: 10px;
+
+            overflow: hidden;
+
+        }
+
+
+        .progress-bar {
+
+            height: 100%;
+
+            border-radius: 10px;
+
+        }
+
+
+        .positive-bar {
+
+            background: #16a34a;
+
+        }
+
+
+        .neutral-bar {
+
+            background: #f59e0b;
+
+        }
+
+
+        .negative-bar {
+
+            background: #dc2626;
+
+        }
+
+
+        /* ====================================================
+           CHART
+        ==================================================== */
+
+        .chart-bar {
+
+            margin-bottom: 25px;
+
+        }
+
+
+        .chart-label {
+
+            font-weight: bold;
+
+            margin-bottom: 8px;
+
+        }
+
+
+        .chart-track {
+
+            width: 100%;
+
+            height: 35px;
+
+            background: #e5e7eb;
+
+            border-radius: 8px;
+
+            overflow: hidden;
+
+        }
+
+
+        .chart-fill {
+
+            height: 100%;
+
+            display: flex;
+
+            align-items: center;
+
+            padding-left: 12px;
+
+            color: white;
+
+            font-weight: bold;
+
+            border-radius: 8px;
+
+            min-width: 45px;
+
+        }
+
+
+        .positive-chart {
+
+            background: #16a34a;
+
+        }
+
+
+        .neutral-chart {
+
+            background: #f59e0b;
+
+        }
+
+
+        .negative-chart {
+
+            background: #dc2626;
+
+        }
+
+
+        /* ====================================================
+           RESULT
+        ==================================================== */
+
+        .sentiment-result {
+
+            font-size: 28px;
+
+            font-weight: bold;
+
+            margin: 15px 0;
+
+        }
+
+
+        .result-comment {
+
+            background: #f3f4f6;
+
+            padding: 15px;
+
+            border-radius: 8px;
+
+            margin-bottom: 20px;
+
+        }
+
+
+        .confidence {
+
+            font-size: 18px;
+
+            margin-bottom: 20px;
+
+        }
+
+
+        .score-row {
+
+            margin-bottom: 15px;
+
+        }
+
+
+        .score-label {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            margin-bottom: 5px;
+
+            font-weight: bold;
+
+        }
+
+
+        /* ====================================================
+           HISTORY
+        ==================================================== */
+
+        .history-header {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            gap: 15px;
+
+            margin-bottom: 20px;
+
+            flex-wrap: wrap;
+
+        }
+
+
+        .history-header h2 {
+
+            margin: 0;
+
+        }
+
+
+        .history-buttons {
+
+            display: flex;
+
+            gap: 10px;
+
+            flex-wrap: wrap;
+
+        }
+
+
+        .no-history {
+
+            text-align: center;
+
+            padding: 30px;
+
+            color: #777;
+
+        }
+
+
+        footer {
+
+            text-align: center;
+
+            padding: 20px;
+
+            color: #777;
+
+            font-size: 14px;
+
+        }
+
+
+        /* ====================================================
+           RESPONSIVE
+        ==================================================== */
+
+        @media (max-width: 800px) {
+
+            .stats,
+            .video-stat-grid {
+
+                grid-template-columns: repeat(2, 1fr);
+
+            }
+
+
+            .youtube-input-row {
+
+                grid-template-columns: 1fr;
+
+            }
+
+        }
+
+
+        @media (max-width: 500px) {
+
+            .container {
+
+                width: 95%;
+
+            }
+
+
+            .stats,
+            .video-stat-grid {
+
+                grid-template-columns: 1fr;
+
+            }
+
+
+            header h1 {
+
+                font-size: 24px;
+
+            }
+
+        }
+
+    
+
+        /* FINAL UI POLISH */
+        :root {
+            --page-bg: #f5f7fb;
+            --surface: #ffffff;
+            --ink: #172033;
+            --muted: #64748b;
+            --line: #e2e8f0;
+            --brand: #2563eb;
+            --shadow: 0 10px 28px rgba(15, 23, 42, 0.07);
+        }
+
+        html { scroll-behavior: smooth; }
+        body {
+            background: radial-gradient(circle at top left, #eaf1ff 0, transparent 34%), var(--page-bg);
+            color: var(--ink);
+            line-height: 1.6;
+        }
+        header {
+            background: linear-gradient(120deg, #111827, #1e3a8a);
+            padding: 34px 20px;
+            box-shadow: 0 8px 25px rgba(15, 23, 42, .16);
+        }
+        header h1 { letter-spacing: -.6px; line-height: 1.25; }
+        header p { margin-bottom: 0; }
+        .container { max-width: 1180px; }
+        .card {
+            border: 1px solid rgba(226, 232, 240, .9);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            padding: clamp(18px, 3vw, 28px);
+            transition: box-shadow .2s ease, transform .2s ease;
+        }
+        .card h2 { color: #172554; letter-spacing: -.25px; }
+        .youtube-card { border-top: 4px solid #ef4444; }
+        textarea, input[type="url"], input[type="number"] {
+            border: 1px solid #cbd5e1;
+            background: #fff;
+            color: var(--ink);
+            border-radius: 10px;
+            transition: border-color .18s ease, box-shadow .18s ease;
+        }
+        textarea:focus, input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, .13);
+        }
+        button, .green-button {
+            transition: transform .15s ease, box-shadow .15s ease, background-color .15s ease;
+        }
+        button:hover, .green-button:hover { transform: translateY(-1px); box-shadow: 0 5px 12px rgba(15, 23, 42, .13); }
+        button:focus-visible, a:focus-visible { outline: 3px solid #93c5fd; outline-offset: 3px; }
+        .blue-button, .purple-button, .youtube-button, .red-button, .gray-button, .green-button {
+            border-radius: 9px;
+            min-height: 42px;
+        }
+        .help-text { color: var(--muted); line-height: 1.5; }
+        .video-info { background: #f8fafc; border: 1px solid var(--line); }
+        .video-stat, .stat-card {
+            border-radius: 13px;
+            border: 1px solid var(--line);
+            box-shadow: 0 5px 16px rgba(15, 23, 42, .045);
+        }
+        .stat-number, .video-stat-number { letter-spacing: -.5px; }
+        .table-container { border: 1px solid var(--line); border-radius: 10px; }
+        table { border-collapse: separate; border-spacing: 0; }
+        th { position: sticky; top: 0; }
+        td { line-height: 1.5; vertical-align: top; }
+        tr:last-child td { border-bottom: 0; }
+        .progress, .chart-track { background: #e8edf5; }
+        .result-comment { border: 1px solid var(--line); background: #f8fafc; overflow-wrap: anywhere; }
+        .sentiment-result { letter-spacing: -.4px; }
+        .error-message { border-radius: 10px; }
+        footer { color: var(--muted); padding: 28px 16px; }
+
+        @media (max-width: 800px) {
+            header { padding: 28px 16px; }
+            .card { margin-bottom: 20px; }
+            .stats, .video-stat-grid { gap: 12px; }
+            .youtube-input-row { gap: 10px; }
+            .button-container, .history-buttons { gap: 8px; }
+        }
+        @media (max-width: 500px) {
+            header h1 { font-size: 22px; }
+            .container { width: 94%; }
+            .card { padding: 17px; border-radius: 13px; }
+            .stats, .video-stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .stat-card, .video-stat { padding: 14px 9px; }
+            .stat-number, .video-stat-number { font-size: 23px; }
+            button, .green-button { max-width: 100%; }
+            .button-container > *, .history-buttons > * { flex: 1 1 auto; text-align: center; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<header>
+
+    <div class="container">
+
+        <h1>🎬 YouTube Comment Sentiment Analysis</h1>
+
+        <p>
+            AI-powered sentiment classification using DistilBERT
+        </p>
+
+    </div>
+
+</header>
+
+
+<div class="container">
+
+
+    <!-- ====================================================
+         YOUTUBE VIDEO ANALYSIS
+    ==================================================== -->
+
+    <div class="card youtube-card">
+
+        <h2>🔗 Analyze YouTube Video</h2>
+
+        <p>
+            Enter a YouTube video URL to automatically collect
+            public comments and analyze their sentiment.
+        </p>
+
+        <p class="help-text">
+
+            Example:
+
+            https://www.youtube.com/watch?v=XXXXXXXXXXX
+
+        </p>
+
+
+        <form method="POST">
+
+            <input
+                type="hidden"
+                name="form_type"
+                value="youtube"
+            >
+
+
+            <div class="youtube-input-row">
+
+                <input
+                    type="url"
+                    name="youtube_url"
+                    placeholder="Paste YouTube video URL here..."
+                    required
+                >
+
+
+                <input
+                    type="number"
+                    name="max_comments"
+                    value="50"
+                    min="1"
+                    max="500"
+                    required
+                >
+
+            </div>
+
+
+            <p class="help-text">
+
+                Number of comments to analyze:
+                <strong>1–500</strong>.
+                Default is 50.
+
+            </p>
+
+
+            <button
+                type="submit"
+                class="youtube-button"
+            >
+                🎬 Analyze YouTube Video
+            </button>
+
+        </form>
+
+    </div>
+
+
+    <!-- ====================================================
+         YOUTUBE ERROR
+    ==================================================== -->
+
+    {% if youtube_error %}
+
+    <div class="error-message">
+
+        <strong>❌ YouTube Analysis Error</strong>
+
+        <p>
+            {{ youtube_error }}
+        </p>
+
+    </div>
+
+    {% endif %}
+
+
+    <!-- ====================================================
+         YOUTUBE RESULTS
+    ==================================================== -->
+
+    {% if youtube_result and youtube_result.get("success") %}
+
+    <div class="card">
+
+        <h2>🎯 YouTube Video Analysis Results</h2>
+
+
+        <div class="video-info">
+
+            <h3>
+                {{ youtube_result["video_info"]["title"] }}
+            </h3>
+
+            <p>
+
+                <strong>Channel:</strong>
+
+                {{ youtube_result["video_info"]["channel"] }}
+
+            </p>
+
+            <p>
+
+                <strong>Video ID:</strong>
+
+                {{ youtube_result["video_id"] }}
+
+            </p>
+
+        </div>
+
+        <div class="button-container" style="margin-bottom: 22px;">
+            <a
+                href="{{ url_for('export_video_csv', analysis_id=youtube_result['analysis_id']) }}"
+                class="green-button"
+            >
+                📥 Download This Video's CSV
+            </a>
+        </div>
+
+
+        <div class="video-stat-grid">
+
+
+            <div class="video-stat video-total">
+
+                <div>📊 Comments Analyzed</div>
+
+                <div class="video-stat-number">
+
+                    {{ youtube_result["comments_analyzed"] }}
+
+                </div>
+
+            </div>
+
+
+            <div class="video-stat video-positive">
+
+                <div>😊 Positive</div>
+
+                <div class="video-stat-number">
+
+                    {{ youtube_result["positive"] }}
+
+                </div>
+
+                <small>
+                    {{ youtube_result["positive_percentage"] }}%
+                </small>
+
+            </div>
+
+
+            <div class="video-stat video-neutral">
+
+                <div>😐 Neutral</div>
+
+                <div class="video-stat-number">
+
+                    {{ youtube_result["neutral"] }}
+
+                </div>
+
+                <small>
+                    {{ youtube_result["neutral_percentage"] }}%
+                </small>
+
+            </div>
+
+
+            <div class="video-stat video-negative">
+
+                <div>😠 Negative</div>
+
+                <div class="video-stat-number">
+
+                    {{ youtube_result["negative"] }}
+
+                </div>
+
+                <small>
+                    {{ youtube_result["negative_percentage"] }}%
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <h3>📈 Video Sentiment Distribution</h3>
+
+
+        <div class="distribution-row">
+
+            <div class="distribution-label">
+
+                <span>😊 Positive</span>
+
+                <span>
+                    {{ youtube_result["positive_percentage"] }}%
+                </span>
+
+            </div>
+
+
+            <div class="progress">
+
+                <div
+                    class="progress-bar positive-bar"
+                    style="width: {{ youtube_result['positive_percentage'] }}%;"
+                ></div>
+
+            </div>
+
+        </div>
+
+
+        <div class="distribution-row">
+
+            <div class="distribution-label">
+
+                <span>😐 Neutral</span>
+
+                <span>
+                    {{ youtube_result["neutral_percentage"] }}%
+                </span>
+
+            </div>
+
+
+            <div class="progress">
+
+                <div
+                    class="progress-bar neutral-bar"
+                    style="width: {{ youtube_result['neutral_percentage'] }}%;"
+                ></div>
+
+            </div>
+
+        </div>
+
+
+        <div class="distribution-row">
+
+            <div class="distribution-label">
+
+                <span>😠 Negative</span>
+
+                <span>
+                    {{ youtube_result["negative_percentage"] }}%
+                </span>
+
+            </div>
+
+
+            <div class="progress">
+
+                <div
+                    class="progress-bar negative-bar"
+                    style="width: {{ youtube_result['negative_percentage'] }}%;"
+                ></div>
+
+            </div>
+
+        </div>
+
+
+        <h3>💬 Analyzed YouTube Comments</h3>
+
+
+        <div class="table-container">
+
+            <table class="video-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>#</th>
+
+                        <th>Comment</th>
+
+                        <th>Sentiment</th>
+
+                        <th>Confidence</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for item in youtube_result["results"] %}
+
+                    <tr>
+
+                        <td>
+                            {{ loop.index }}
+                        </td>
+
+
+                        <td>
+                            {{ item["comment"] }}
+                        </td>
+
+
+                        <td>
+
+                            {% if item["sentiment"] == "Positive" %}
+
+                                <span class="positive-text">
+                                    😊 Positive
+                                </span>
+
+                            {% elif item["sentiment"] == "Neutral" %}
+
+                                <span class="neutral-text">
+                                    😐 Neutral
+                                </span>
+
+                            {% else %}
+
+                                <span class="negative-text">
+                                    😠 Negative
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td>
+                            {{ item["confidence"] }}%
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+    {% endif %}
+
+
+    <!-- ====================================================
+         SINGLE COMMENT
+    ==================================================== -->
+
+    <div class="card">
+
+        <h2>🔍 Analyze a YouTube Comment</h2>
+
+        <p>
+            Enter one comment manually.
+        </p>
+
+
+        <form method="POST">
+
+            <input
+                type="hidden"
+                name="form_type"
+                value="single"
+            >
+
+
+            <textarea
+                name="comment"
+                placeholder="Enter a YouTube comment here..."
+                required
+            >{{ comment }}</textarea>
+
+
+            <div class="button-container">
+
+                <button
+                    type="submit"
+                    class="blue-button"
+                >
+                    🔎 Analyze Sentiment
+                </button>
+
+
+                <button
+                    type="button"
+                    class="gray-button"
+                    onclick="clearForm()"
+                >
+                    ✖ Clear
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+    <!-- ====================================================
+         BATCH ANALYSIS
+    ==================================================== -->
+
+    <div class="card">
+
+        <h2>📚 Batch Comment Analysis</h2>
+
+        <p>
+            Enter multiple comments, one comment per line.
+        </p>
+
+
+        <textarea
+            name="batch_comments"
+            form="batch-form"
+            class="batch-textarea"
+            placeholder="This video is amazing!
+Very useful information.
+I don't like this video.
+The explanation is confusing."
+        ></textarea>
+
+
+        <form
+            method="POST"
+            id="batch-form"
+        >
+
+            <input
+                type="hidden"
+                name="form_type"
+                value="batch"
+            >
+
+
+            <div class="button-container">
+
+                <button
+                    type="submit"
+                    class="purple-button"
+                >
+                    📊 Analyze All Comments
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+    <!-- ====================================================
+         BATCH RESULTS
+    ==================================================== -->
+
+    {% if batch_results %}
+
+    <div class="card">
+
+        <h2>📋 Batch Analysis Results</h2>
+
+        <p>
+
+            Analyzed
+            <strong>
+                {{ batch_results|length }}
+            </strong>
+            comments.
+
+        </p>
+
+
+        <div class="table-container">
+
+            <table class="batch-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>#</th>
+
+                        <th>Comment</th>
+
+                        <th>Sentiment</th>
+
+                        <th>Confidence</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for item in batch_results %}
+
+                    <tr>
+
+                        <td>
+                            {{ loop.index }}
+                        </td>
+
+
+                        <td>
+                            {{ item["comment"] }}
+                        </td>
+
+
+                        <td>
+
+                            {% if item["sentiment"] == "Positive" %}
+
+                                <span class="positive-text">
+                                    😊 Positive
+                                </span>
+
+                            {% elif item["sentiment"] == "Neutral" %}
+
+                                <span class="neutral-text">
+                                    😐 Neutral
+                                </span>
+
+                            {% else %}
+
+                                <span class="negative-text">
+                                    😠 Negative
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td>
+                            {{ item["confidence"] }}%
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+    {% endif %}
+
+
+    <!-- ====================================================
+         DASHBOARD
+    ==================================================== -->
+
+    <div class="card">
+
+        <h2>📊 Sentiment Dashboard</h2>
+
+
+        <div class="stats">
+
+
+            <div class="stat-card total">
+
+                <h3>Total Comments</h3>
+
+                <div class="stat-number">
+                    {{ statistics.total }}
+                </div>
+
+            </div>
+
+
+            <div class="stat-card positive">
+
+                <h3>😊 Positive</h3>
+
+                <div class="stat-number">
+                    {{ statistics.positive }}
+                </div>
+
+            </div>
+
+
+            <div class="stat-card neutral">
+
+                <h3>😐 Neutral</h3>
+
+                <div class="stat-number">
+                    {{ statistics.neutral }}
+                </div>
+
+            </div>
+
+
+            <div class="stat-card negative">
+
+                <h3>😠 Negative</h3>
+
+                <div class="stat-number">
+                    {{ statistics.negative }}
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ====================================================
+         DISTRIBUTION
+    ==================================================== -->
+
+    <div class="card">
+
+        <h2>📈 Sentiment Distribution</h2>
+
+
+        <div class="distribution-row">
+
+            <div class="distribution-label">
+
+                <span>😊 Positive</span>
+
+                <span>
+                    {{ statistics.positive_percentage }}%
+                </span>
+
+            </div>
+
+
+            <div class="progress">
+
+                <div
+                    class="progress-bar positive-bar"
+                    style="width: {{ statistics.positive_percentage }}%;"
+                ></div>
+
+            </div>
+
+        </div>
+
+
+        <div class="distribution-row">
+
+            <div class="distribution-label">
+
+                <span>😐 Neutral</span>
+
+                <span>
+                    {{ statistics.neutral_percentage }}%
+                </span>
+
+            </div>
+
+
+            <div class="progress">
+
+                <div
+                    class="progress-bar neutral-bar"
+                    style="width: {{ statistics.neutral_percentage }}%;"
+                ></div>
+
+            </div>
+
+        </div>
+
+
+        <div class="distribution-row">
+
+            <div class="distribution-label">
+
+                <span>😠 Negative</span>
+
+                <span>
+                    {{ statistics.negative_percentage }}%
+                </span>
+
+            </div>
+
+
+            <div class="progress">
+
+                <div
+                    class="progress-bar negative-bar"
+                    style="width: {{ statistics.negative_percentage }}%;"
+                ></div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ====================================================
+         CHART
+    ==================================================== -->
+
+    <div class="card">
+
+        <h2>📊 Sentiment Analysis Chart</h2>
+
+
+        <div class="chart-bar">
+
+            <div class="chart-label">
+                😊 Positive
+            </div>
+
+
+            <div class="chart-track">
+
+                <div
+                    class="chart-fill positive-chart"
+                    style="width: {{ statistics.positive_percentage }}%;"
+                >
+                    {{ statistics.positive_percentage }}%
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="chart-bar">
+
+            <div class="chart-label">
+                😐 Neutral
+            </div>
+
+
+            <div class="chart-track">
+
+                <div
+                    class="chart-fill neutral-chart"
+                    style="width: {{ statistics.neutral_percentage }}%;"
+                >
+                    {{ statistics.neutral_percentage }}%
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="chart-bar">
+
+            <div class="chart-label">
+                😠 Negative
+            </div>
+
+
+            <div class="chart-track">
+
+                <div
+                    class="chart-fill negative-chart"
+                    style="width: {{ statistics.negative_percentage }}%;"
+                >
+                    {{ statistics.negative_percentage }}%
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ====================================================
+         CURRENT PREDICTION
+    ==================================================== -->
+
+    {% if sentiment %}
+
+    <div class="card">
+
+        <h2>🎯 Current Prediction</h2>
+
+
+        <div class="result-comment">
+
+            <strong>Your Comment:</strong>
+
+            <p>
+                {{ comment }}
+            </p>
+
+        </div>
+
+
+        <div class="sentiment-result">
+
+            {% if sentiment == "Positive" %}
+
+                😊 Positive
+
+            {% elif sentiment == "Neutral" %}
+
+                😐 Neutral
+
+            {% else %}
+
+                😠 Negative
+
+            {% endif %}
+
+        </div>
+
+
+        <div class="confidence">
+
+            <strong>Confidence:</strong>
+
+            {{ "%.2f"|format(confidence) }}%
+
+        </div>
+
+
+        <h3>Probability Scores</h3>
+
+
+        <div class="score-row">
+
+            <div class="score-label">
+
+                <span>😠 Negative</span>
+
+                <span>
+                    {{ scores["Negative"] }}%
+                </span>
+
+            </div>
+
+
+            <div class="progress">
+
+                <div
+                    class="progress-bar negative-bar"
+                    style="width: {{ scores['Negative'] }}%;"
+                ></div>
+
+            </div>
+
+        </div>
+
+
+        <div class="score-row">
+
+            <div class="score-label">
+
+                <span>😐 Neutral</span>
+
+                <span>
+                    {{ scores["Neutral"] }}%
+                </span>
+
+            </div>
+
+
+            <div class="progress">
+
+                <div
+                    class="progress-bar neutral-bar"
+                    style="width: {{ scores['Neutral'] }}%;"
+                ></div>
+
+            </div>
+
+        </div>
+
+
+        <div class="score-row">
+
+            <div class="score-label">
+
+                <span>😊 Positive</span>
+
+                <span>
+                    {{ scores["Positive"] }}%
+                </span>
+
+            </div>
+
+
+            <div class="progress">
+
+                <div
+                    class="progress-bar positive-bar"
+                    style="width: {{ scores['Positive'] }}%;"
+                ></div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    {% endif %}
+
+
+    <!-- ====================================================
+         HISTORY
+    ==================================================== -->
+
+    <div class="card">
+
+        <div class="history-header">
+
+            <h2>📝 Sentiment History</h2>
+
+
+            {% if history %}
+
+            <div class="history-buttons">
+
+                <a
+                    href="/export-csv"
+                    class="green-button"
+                >
+                    📥 Download CSV
+                </a>
+
+
+                <form
+                    method="POST"
+                    action="/clear-history"
+                    onsubmit="return confirm('Are you sure you want to delete all sentiment history?');"
+                >
+
+                    <button
+                        type="submit"
+                        class="red-button"
+                    >
+                        🗑️ Clear All History
+                    </button>
+
+                </form>
+
+            </div>
+
+            {% endif %}
+
+        </div>
+
+
+        {% if history %}
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>#</th>
+
+                        <th>Comment</th>
+
+                        <th>Sentiment</th>
+
+                        <th>Confidence</th>
+
+                        <th>Date & Time</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for item in history %}
+
+                    <tr>
+
+                        <td>
+                            {{ loop.index }}
+                        </td>
+
+
+                        <td>
+                            {{ item["comment"] }}
+                        </td>
+
+
+                        <td>
+
+                            {% if item["sentiment"] == "Positive" %}
+
+                                <span class="positive-text">
+                                    😊 Positive
+                                </span>
+
+                            {% elif item["sentiment"] == "Neutral" %}
+
+                                <span class="neutral-text">
+                                    😐 Neutral
+                                </span>
+
+                            {% else %}
+
+                                <span class="negative-text">
+                                    😠 Negative
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td>
+                            {{ item["confidence"] }}%
+                        </td>
+
+
+                        <td>
+                            {{ item["created_at"] }}
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        {% else %}
+
+        <div class="no-history">
+
+            <p>
+                📭 No sentiment history available.
+            </p>
+
+            <p>
+                Analyze some comments to create history.
+            </p>
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+
+</div>
+
+
+<footer>
+
+    YouTube Comment Sentiment Analysis System
+
+    <br>
+
+    Powered by DistilBERT, Flask & YouTube Data API v3
+
+</footer>
+
+
+<script>
+
+    function clearForm() {
+
+        window.location.href = "/";
+
+    }
+
+</script>
+
+
+</body>
+
+</html>
